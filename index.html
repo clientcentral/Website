@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- This meta tag tells Dark Reader to disable itself for this page -->
+    <meta name="darkreader-lock">
+    <title>ClientCentral | The Ultimate Minecraft Client Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flaticon UIcons (Added for the requested cube icon) -->
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#050510', // Deep dark background
+                            card: '#101020', // Slightly lighter
+                            cyan: '#00f2ea', // Bright Cyan
+                            pink: '#ff00ff', // Neon Pink
+                            danger: '#ff4757',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0) translateX(0)' },
+                            '50%': { transform: 'translateY(-30px) translateX(20px)' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050510;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2ea;
+        }
+
+        /* Default Cursor Logic - Desktop Only */
+        @media (pointer: fine) {
+            body, html {
+                background-color: #050510; 
+                color: white;
+                overflow-x: hidden;
+                cursor: none !important;
+                
+                /* Disable Text Selection Globally */
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            
+            * {
+                cursor: none !important;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        }
+
+        /* Mobile/Touch Logic - Restore Default Cursor */
+        @media (pointer: coarse) {
+            body, html {
+                background-color: #050510; 
+                color: white;
+                overflow-x: hidden;
+                cursor: auto !important;
+            }
+            
+            * {
+                cursor: auto !important;
+            }
+
+            /* FORCE Hide custom cursor elements on touch devices */
+            #cursor, #cursor-dot {
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+            }
+        }
+
+        /* Override selection for input fields */
+        input, textarea {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        /* Custom Selection Highlight */
+        ::selection {
+            background: rgba(0, 242, 234, 0.3);
+            color: #ffffff;
+        }
+        ::-moz-selection {
+            background: rgba(0, 242, 234, 0.3);
+            color: #ffffff;
+        }
+
+        /* Custom Cursor Element */
+        #cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00f2ea;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s, transform 0.1s;
+            mix-blend-mode: difference;
+        }
+        
+        #cursor.hovered {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 0, 255, 0.2);
+            border-color: #ff00ff;
+            mix-blend-mode: normal;
+        }
+
+        /* CLICKING ANIMATION STATE */
+        #cursor.clicking {
+            transform: translate(-50%, -50%) scale(0.75);
+            background-color: rgba(0, 242, 234, 0.5);
+            border-color: #ffffff;
+        }
+
+        #cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10001;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s;
+        }
+        
+        #cursor-dot.clicking {
+             transform: translate(-50%, -50%) scale(1.5);
+        }
+
+        /* Glassmorphism Base */
+        .glass-base {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-top {
+            background: rgba(16, 16, 32, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-scrolled {
+            background: rgba(5, 5, 16, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(16, 16, 32, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease-out;
+        }
+        
+        .glass-card:hover {
+            background: rgba(30, 30, 50, 0.8);
+            border-color: rgba(0, 242, 234, 0.3);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px -20px rgba(0, 242, 234, 0.2);
+        }
+
+        /* --- DYNAMIC BACKGROUND & GRID --- */
+        #bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -50;
+            background-color: #050510;
+            overflow: hidden;
+        }
+
+        /* Animated Glowing Blobs */
+        #bg-glow-1 {
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(0, 242, 234, 0.15) 0%, transparent 60%);
+            filter: blur(80px);
+            animation: floatBlob1 15s ease-in-out infinite alternate;
+            opacity: 0.6;
+        }
+
+        #bg-glow-2 {
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.12) 0%, transparent 60%);
+            filter: blur(80px);
+            animation: floatBlob2 18s ease-in-out infinite alternate;
+            opacity: 0.5;
+        }
+
+        @keyframes floatBlob1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10%, 10%) scale(1.1); }
+        }
+
+        @keyframes floatBlob2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-10%, -10%) scale(1.15); }
+        }
+
+        /* The Grid Overlay */
+        #bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            /* Fade out the grid at edges for a cleaner look */
+            mask-image: radial-gradient(circle at 50% 50%, black 50%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle at 50% 50%, black 50%, transparent 100%);
+        }
+
+        .hero-fade-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, transparent, #050510);
+            pointer-events: none;
+            z-index: 1; 
+        }
+
+        /* Text Styles */
+        .text-gradient {
+            background: linear-gradient(135deg, #00f2ea 0%, #ff00ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientShift 5s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px; 
+            background: rgba(5, 5, 16, 0.7); 
+            border-radius: 1rem;
+            z-index: 10;
+        }
+
+        /* Tooltip Transition */
+        #chartTooltip {
+            will-change: transform, opacity;
+            pointer-events: none; 
+            transition: opacity 0.3s ease-out, transform 0s;
+        }
+
+        /* Mobile Menu Styles */
+        #mobile-menu {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform-origin: top;
+        }
+        #mobile-menu.hidden {
+            display: none;
+            opacity: 0;
+            transform: scaleY(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor Elements -->
+    <div id="cursor"></div>
+    <div id="cursor-dot"></div>
+
+    <!-- NEW DYNAMIC BACKGROUND CONTAINER -->
+    <div id="bg-container">
+        <!-- Floating Color Blobs -->
+        <div id="bg-glow-1"></div>
+        <div id="bg-glow-2"></div>
+        <!-- Grid Pattern on top -->
+        <div id="bg-grid"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 top-0 transition-all duration-500 p-4 sm:p-6" id="navbar">
+        <div class="max-w-7xl mx-auto relative rounded-2xl px-6 py-4 glass-base nav-top transition-all duration-500" id="nav-container">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="text-2xl font-display font-bold tracking-tighter flex items-center gap-3">
+                    <img src="https://i.ibb.co/JjtzpgNQ/cc-bg-removebg-preview.png" alt="ClientCentral Logo" class="h-10 sm:h-14 w-auto object-contain hover:rotate-12 transition-transform duration-500">
+                    <span class="text-gradient text-2xl sm:text-3xl">Client<span class="text-white text-shadow-none">Central</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-8 font-medium text-gray-300">
+                    <a href="#home" class="hover:text-brand-cyan transition-colors duration-300 nav-link">Home</a>
+                    <a href="#features" class="hover:text-brand-pink transition-colors duration-300 nav-link">Downloads</a>
+                    <a href="#stats" class="hover:text-brand-cyan transition-colors duration-300 nav-link">Live Stats</a>
+                    <a href="#community" class="hover:text-brand-pink transition-colors duration-300 nav-link">Community</a>
+                </div>
+
+                <!-- Mobile Burger Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white text-2xl p-2 focus:outline-none hover:text-brand-cyan transition-colors">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Dropdown with Blur -->
+            <div id="mobile-menu" class="hidden md:hidden absolute left-0 right-0 top-full mt-4 mx-2">
+                <!-- Added backdrop-blur-xl for improved readability and glass effect on mobile -->
+                <div class="glass-card backdrop-blur-xl bg-brand-dark/80 rounded-2xl flex flex-col p-6 space-y-4 text-center border border-white/10 shadow-2xl">
+                    <a href="#home" class="mobile-link text-lg font-medium text-gray-300 hover:text-brand-cyan py-2 border-b border-white/5">Home</a>
+                    <a href="#features" class="mobile-link text-lg font-medium text-gray-300 hover:text-brand-pink py-2 border-b border-white/5">Downloads</a>
+                    <a href="#stats" class="mobile-link text-lg font-medium text-gray-300 hover:text-brand-cyan py-2 border-b border-white/5">Live Stats</a>
+                    <a href="#community" class="mobile-link text-lg font-medium text-gray-300 hover:text-brand-pink py-2">Community</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative pt-24 pb-12 overflow-hidden">
+        <div class="text-center px-4 max-w-5xl mx-auto z-10 reveal-slow">
+            <div class="inline-block px-4 sm:px-6 py-2 rounded-full glass-card text-brand-cyan text-xs sm:text-sm font-semibold mb-6 sm:mb-8 animate-pulse-slow border border-brand-cyan/30 shadow-[0_0_20px_-5px_rgba(0,242,234,0.3)]">
+                ✨ #1 Minecraft Client Archive
+            </div>
+            
+            <h1 class="text-5xl sm:text-7xl md:text-9xl font-display font-extrabold mb-6 leading-tight tracking-tight break-words">
+                <span class="text-gradient">ClientCentral</span>
+            </h1>
+            
+            <p class="text-white text-xl sm:text-2xl md:text-3xl mb-8 max-w-3xl mx-auto leading-relaxed font-light tracking-wide">
+                Unlock Your <span class="text-brand-pink font-semibold">Full Potential</span>
+            </p>
+
+            <p class="text-gray-400 text-base sm:text-lg mb-12 max-w-2xl mx-auto leading-relaxed px-4">
+                The ultimate hub for <span class="text-brand-cyan font-semibold">130+ Clients</span>, <span class="text-brand-pink font-semibold">40+ Configs</span>, and Tools.
+                Join <span class="text-white font-bold">4,700+</span> trusting members.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-20 w-full px-6">
+                <a href="https://discord.gg/client-central-1200866946351116358" target="_blank" 
+                   class="w-full sm:w-auto group relative px-8 py-4 bg-transparent border border-brand-cyan text-brand-cyan hover:bg-brand-cyan hover:text-black rounded-full font-bold text-lg overflow-hidden transition-all duration-300 shadow-[0_0_20px_-5px_rgba(0,242,234,0.5)] hover:shadow-[0_0_40px_-5px_rgba(0,242,234,0.8)]">
+                    <span class="relative flex items-center justify-center gap-3">
+                        <i class="fa-brands fa-discord text-xl"></i> Join Server
+                    </span>
+                </a>
+                <a href="#features" class="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-lg text-white border border-white/10 hover:bg-white/5 transition-all duration-300 hover:border-brand-pink hover:text-brand-pink shadow-lg">
+                    Explore Archive
+                </a>
+            </div>
+        </div>
+        
+        <!-- Gradient Fade -->
+        <div class="hero-fade-bottom"></div>
+    </section>
+
+    <!-- Features / Categories Section -->
+    <section id="features" class="py-20 sm:py-32 relative z-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 sm:mb-20 reveal-slow">
+                <h2 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold mb-6 text-white">Massive <span class="text-gradient">Archive</span></h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">Fully categorized database for every Minecraft version.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Clients Card -->
+                <div class="glass-card p-8 rounded-3xl relative overflow-hidden group reveal-slow">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/10 rounded-full blur-2xl -mr-10 -mt-10 transition-all group-hover:bg-brand-cyan/20"></div>
+                    <div class="w-14 h-14 bg-brand-cyan/10 rounded-2xl flex items-center justify-center mb-6 text-brand-cyan text-3xl border border-brand-cyan/20">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-4 text-white">130+ Clients</h3>
+                    <p class="text-gray-400 mb-6 text-sm">The largest collection of PvP and Utility clients.</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Bedrock Edition</span>
+                            <span class="text-brand-cyan font-mono">100+</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Java Edition</span>
+                            <span class="text-brand-cyan font-mono">30+</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Pocket Edition</span>
+                            <span class="text-brand-cyan font-mono">10+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools & Configs Card -->
+                <div class="glass-card p-8 rounded-3xl relative overflow-hidden group reveal-slow" style="transition-delay: 100ms;">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-pink/10 rounded-full blur-2xl -mr-10 -mt-10 transition-all group-hover:bg-brand-pink/20"></div>
+                    <div class="w-14 h-14 bg-brand-pink/10 rounded-2xl flex items-center justify-center mb-6 text-brand-pink text-3xl border border-brand-pink/20">
+                        <i class="fa-solid fa-toolbox"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-4 text-white">Tools & Configs</h3>
+                    <p class="text-gray-400 mb-6 text-sm">Optimization tools and pro-made configurations.</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Tools (All Versions)</span>
+                            <span class="text-brand-pink font-mono">20+</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Official Configs</span>
+                            <span class="text-brand-pink font-mono">10+</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Community Configs</span>
+                            <span class="text-brand-pink font-mono">30+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resources Card (UPDATED ICON) -->
+                <div class="glass-card p-8 rounded-3xl relative overflow-hidden group reveal-slow" style="transition-delay: 200ms;">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-all group-hover:bg-purple-500/20"></div>
+                    <div class="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 text-purple-400 text-3xl border border-purple-500/20">
+                        <!-- Updated icon as requested -->
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-4 text-white">Resource Packs</h3>
+                    <p class="text-gray-400 mb-6 text-sm">Texture packs and cracked marketplace content.</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Bedrock Packs</span>
+                            <span class="text-brand-pink font-mono">50+</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Java Packs</span>
+                            <span class="text-brand-pink font-mono">30+</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b border-white/5 pb-2">
+                            <span class="text-gray-300">Marketplace (Cracked)</span>
+                            <span class="text-brand-cyan font-mono">20+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="py-24 relative overflow-hidden z-10">
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-10 reveal-slow">
+                <div class="w-full md:w-auto">
+                    <h2 class="text-4xl sm:text-5xl font-display font-bold mb-2 text-white">Server <span class="text-brand-cyan">Analytics</span></h2>
+                    <p class="text-gray-400">Real-time engagement tracking.</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex flex-wrap gap-4 sm:gap-6 text-sm font-semibold">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-brand-cyan shadow-[0_0_10px_rgba(0,242,234,0.8)]"></span> Joins
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-brand-pink shadow-[0_0_10px_rgba(255,0,255,0.8)]"></span> Leaves
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full border border-dashed border-gray-500"></span> Expectation
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="glass-card p-2 reveal-slow shadow-2xl border border-white/5 rounded-3xl overflow-hidden">
+                <div class="chart-container">
+                    <canvas id="statsChart"></canvas>
+                    
+                    <!-- Tooltip -->
+                    <div id="chartTooltip" class="absolute pointer-events-none opacity-0 bg-brand-card/90 backdrop-blur-md border border-white/10 p-4 rounded-xl text-sm shadow-2xl z-20" style="top: 0; left: 0;">
+                        <div class="font-bold text-gray-200 mb-2 border-b border-white/10 pb-1" id="tooltipDate">Date</div>
+                        <div class="flex items-center gap-2 text-brand-cyan mb-1">
+                            <span class="w-2 h-2 rounded-full bg-brand-cyan"></span> Joins: <span id="tooltipJoins" class="text-white font-mono font-bold">0</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-brand-pink">
+                            <span class="w-2 h-2 rounded-full bg-brand-pink"></span> Leaves: <span id="tooltipLeaves" class="text-white font-mono font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community / CTA Section -->
+    <section id="community" class="py-24 sm:py-32 relative text-center z-10">
+        <div class="max-w-4xl mx-auto px-6 reveal-slow">
+            <h2 class="text-4xl sm:text-5xl md:text-7xl font-display font-bold mb-8 text-white">Ready to <span class="text-brand-pink">Explore?</span></h2>
+            <p class="text-lg sm:text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+                Stop searching. Start playing. Access the entire archive of 130+ clients and tools today.
+            </p>
+            <a href="https://discord.gg/client-central-1200866946351116358" 
+               class="inline-flex items-center gap-4 px-10 py-5 sm:px-12 sm:py-6 bg-brand-cyan hover:bg-white text-black rounded-full text-lg sm:text-xl font-bold transition-all duration-300 hover:scale-105 shadow-[0_0_30px_-5px_rgba(0,242,234,0.6)]">
+                <i class="fa-brands fa-discord text-2xl"></i> Join ClientCentral
+            </a>
+        </div>
+        
+        <div class="absolute bottom-0 w-full h-px bg-gradient-to-r from-transparent via-brand-cyan/20 to-transparent"></div>
+        <!-- UPDATED YEAR -->
+        <p class="mt-24 pb-8 text-gray-600 text-sm">&copy; 2026 ClientCentral. All rights reserved.</p>
+    </section>
+
+    <script>
+        // --- MOBILE MENU LOGIC ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        const icon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            const isHidden = mobileMenu.classList.contains('hidden');
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block'; 
+                setTimeout(() => {
+                    mobileMenu.classList.remove('opacity-0', 'scale-y-95');
+                }, 10);
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                mobileMenu.classList.add('opacity-0', 'scale-y-95');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.display = 'none';
+                }, 300); 
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('opacity-0', 'scale-y-95');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.display = 'none';
+                }, 300);
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+
+        // --- Custom Cursor Logic ---
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+        
+        let mouseX = -100, mouseY = -100; 
+        let cursorX = -100, cursorY = -100;
+        let dotX = -100, dotY = -100;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        document.addEventListener('mousedown', () => {
+            cursor.classList.add('clicking');
+            cursorDot.classList.add('clicking');
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cursor.classList.remove('clicking');
+            cursorDot.classList.remove('clicking');
+        });
+
+        const lerp = (start, end, factor) => start + (end - start) * factor;
+
+        function animateCursor() {
+            if (window.matchMedia("(pointer: fine)").matches) {
+                cursorX = lerp(cursorX, mouseX, 0.12);
+                cursorY = lerp(cursorY, mouseY, 0.12);
+                cursor.style.left = cursorX + 'px';
+                cursor.style.top = cursorY + 'px';
+
+                dotX = lerp(dotX, mouseX, 0.4);
+                dotY = lerp(dotY, mouseY, 0.4);
+                cursorDot.style.left = dotX + 'px';
+                cursorDot.style.top = dotY + 'px';
+            }
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        const interactiveElements = document.querySelectorAll('a, button, .glass-card, canvas, input');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('hovered');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hovered');
+            });
+        });
+
+        const navContainer = document.getElementById('nav-container');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navContainer.classList.add('nav-scrolled');
+                navContainer.classList.remove('nav-top', 'py-4');
+                navContainer.classList.add('py-3');
+            } else {
+                navContainer.classList.remove('nav-scrolled', 'py-3');
+                navContainer.classList.add('nav-top', 'py-4');
+            }
+        });
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px" 
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-slow').forEach((el) => {
+            el.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10', 'ease-out');
+            observer.observe(el);
+        });
+
+        const chartCanvas = document.getElementById('statsChart');
+        const ctx = chartCanvas.getContext('2d');
+        const tooltip = document.getElementById('chartTooltip');
+
+        // --- UPDATED CHART DATA & LOGIC FOR MOBILE ---
+        // Raw Data (30 points)
+        const allJoinsData = [28, 29, 29, 25, 40, 45, 40, 26, 40, 33, 23, 42, 22, 35, 25, 32, 30, 32, 59, 42, 60, 25, 31, 24, 40, 23, 39, 20, 16, 15];
+        const allLeavesData = [16, 12, 14, 16, 23, 17, 21, 20, 28, 21, 22, 24, 20, 25, 18, 20, 13, 18, 18, 24, 20, 13, 12, 13, 29, 15, 22, 15, 11, 10];
+        
+        let currentJoins = [];
+        let currentLeaves = [];
+        let currentLabels = [];
+        let dataPoints = 30; // Will be updated on resize
+
+        function updateChartData() {
+            // Check width to decide how many points to show
+            // If screen is less than 768px (MD breakpoint), show fewer points
+            if (window.innerWidth < 768) {
+                dataPoints = 10;
+            } else {
+                dataPoints = 30;
+            }
+
+            // Slice data from the END of the array
+            currentJoins = allJoinsData.slice(-dataPoints);
+            currentLeaves = allLeavesData.slice(-dataPoints);
+
+            // Generate dates dynamically based on count
+            currentLabels = Array.from({length: dataPoints}, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (dataPoints - i));
+                return `${d.getDate()}/${d.getMonth()+1}`;
+            });
+        }
+
+
+        let chartProgress = 0;
+        window.chartAnimating = false;
+
+        function resizeCanvas() {
+            const container = chartCanvas.parentElement;
+            if (container) {
+                chartCanvas.width = container.offsetWidth;
+                chartCanvas.height = container.offsetHeight;
+            }
+            updateChartData(); // Recalculate how much data to show
+             if (!window.chartAnimating) {
+                 drawChart(1);
+             }
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawChart(progress) {
+            const w = chartCanvas.width;
+            const h = chartCanvas.height;
+            if (w === 0 || h === 0) return;
+
+            const padding = 50;
+            const graphHeight = h - padding * 2;
+            const graphWidth = w - padding * 2;
+            const maxVal = 70;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw Y Axis Grid
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; 
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<=5; i++) {
+                const y = padding + (graphHeight * i / 5);
+                ctx.moveTo(padding, y);
+                ctx.lineTo(w - padding, y);
+                
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.font = '12px Inter';
+                ctx.fillText(Math.round(maxVal - (maxVal * i / 5)), padding - 25, y + 4);
+            }
+            ctx.stroke();
+
+            // Helper functions using CURRENT data length
+            const getX = (index) => padding + (index / (dataPoints - 1)) * graphWidth;
+            const getY = (val) => (h - padding) - (val / maxVal) * graphHeight;
+
+            function drawLine(data, color, isDashed = false) {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2; 
+                if(isDashed) ctx.setLineDash([5,5]);
+                else ctx.setLineDash([]);
+
+                const maxIndex = (dataPoints - 1) * progress;
+                
+                for(let i = 0; i < dataPoints - 1; i++) {
+                    if (i > maxIndex) break;
+                    
+                    const x1 = getX(i);
+                    const y1 = getY(data[i]);
+                    const x2 = getX(i+1);
+                    const y2 = getY(data[i+1]);
+
+                    if (i + 1 > maxIndex) {
+                        const partial = maxIndex - i;
+                        ctx.lineTo(x1 + (x2-x1)*partial, y1 + (y2-y1)*partial);
+                    } else {
+                        ctx.lineTo(x2, y2);
+                    }
+                }
+                ctx.stroke();
+
+                if(!isDashed && progress > 0.1) {
+                    ctx.fillStyle = '#050510'; 
+                    ctx.lineWidth = 2;
+                    for(let i = 0; i < Math.floor(maxIndex) + 1; i++) {
+                        ctx.beginPath();
+                        ctx.arc(getX(i), getY(data[i]), 4, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            drawLine(currentJoins, '#00f2ea');
+            drawLine(currentLeaves, '#ff00ff');
+
+            // Optional prediction line (only if showing full data or adapted logic)
+            // For simplicity, we only draw it if we have the last point available
+            if (progress > 0.9) {
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5,5]);
+                const lastX = getX(dataPoints-1);
+                const lastY = getY(currentJoins[currentJoins.length-1]);
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(w-10, lastY - 50);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            if (progress < 1) {
+                chartProgress += 0.01;
+                window.chartAnimating = true;
+                requestAnimationFrame(() => drawChart(chartProgress));
+            } else {
+                window.chartAnimating = false;
+            }
+        }
+
+        setTimeout(() => {
+            resizeCanvas();
+        }, 100);
+
+
+        const chartObserver = new IntersectionObserver((entries) => {
+            if(entries[0].isIntersecting) {
+                chartProgress = 0;
+                drawChart(0);
+                chartObserver.disconnect();
+            }
+        });
+        chartObserver.observe(chartCanvas);
+
+        let tooltipX = 0;
+        let tooltipY = 0;
+        let targetTooltipX = 0;
+        let targetTooltipY = 0;
+        let isTooltipVisible = false;
+
+        chartCanvas.addEventListener('mousemove', (e) => {
+            if (!window.matchMedia("(pointer: fine)").matches) return; 
+
+            const rect = chartCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top; 
+            
+            const padding = 50;
+            const graphWidth = chartCanvas.width - padding * 2;
+            
+            let index = Math.round(((x - padding) / graphWidth) * (dataPoints - 1));
+            index = Math.max(0, Math.min(index, dataPoints - 1));
+
+            const pointX = padding + (index / (dataPoints - 1)) * graphWidth;
+            targetTooltipX = pointX;
+            
+            const calculatedY = y - 20; 
+            targetTooltipY = calculatedY;
+
+            isTooltipVisible = true;
+            
+            // Use current arrays instead of static
+            document.getElementById('tooltipDate').innerText = currentLabels[index];
+            document.getElementById('tooltipJoins').innerText = currentJoins[index];
+            document.getElementById('tooltipLeaves').innerText = currentLeaves[index];
+
+            tooltip.style.opacity = 1;
+        });
+
+        chartCanvas.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = 0;
+            isTooltipVisible = false;
+        });
+
+        function animateTooltip() {
+            if (isTooltipVisible || parseFloat(tooltip.style.opacity) > 0) {
+                tooltipX = lerp(tooltipX, targetTooltipX, 0.15); 
+                tooltipY = lerp(tooltipY, targetTooltipY, 0.15); 
+
+                tooltip.style.transform = `translate(${tooltipX}px, ${tooltipY}px) translateX(-50%) translateY(-100%)`;
+            }
+            requestAnimationFrame(animateTooltip);
+        }
+        animateTooltip();
+    </script>
+</body>
+</html>
