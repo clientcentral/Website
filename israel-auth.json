@@ -7,7 +7,7 @@
   "killswitch-all": false,
   "self-destruct-all": false,
 
-  "killswitched-sha256": [],
+  "killswitched-sha256": ["e276310ef5a445383095c82ca3fd7db0c6789da78e9cc9ecd2d31c16205d0d7c"],
   "self-destruct-sha256": [],
 
   "outdated-sha256": [],
