@@ -4,7 +4,7 @@
   "uncrackable": true,
   "crack-time": "67y",
   
-  "killswitch-all": true,
+  "killswitch-all": false,
   "self-destruct-all": false,
 
   "killswitched-sha256": [],
