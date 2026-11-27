@@ -10,8 +10,8 @@
   "killswitched-sha256": [],
   "self-destruct-sha256": [],
 
-  "outdated-sha256": ["2e88e7e0c03ced7008e86e0a9aacd92a851e532ad92cc30dd8ebd0bd1ee831c7"],
-  "expired-sha256": [],
+  "outdated-sha256": [],
+  "expired-sha256": ["2e88e7e0c03ced7008e86e0a9aacd92a851e532ad92cc30dd8ebd0bd1ee831c7"],
 
 
 
