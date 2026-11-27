@@ -1,6 +1,6 @@
 {
   "killswitch": false,
-  "self-destruct": true,
+  "self-destruct": false,
   "opsec:": true,
   "uncrackable": true,
   "crack-time": "67y"
