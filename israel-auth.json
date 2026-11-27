@@ -1,5 +1,5 @@
 {
-  "killswitch": true,
+  "killswitch": false,
   "self-destruct": false,
   "opsec:": true,
   "uncrackable": true,
