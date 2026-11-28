@@ -1,0 +1,22 @@
+{
+  
+  "opsec:": true,
+  "uncrackable": true,
+  "crack-time": "67y",
+  
+  "killswitch-all": false,
+  "self-destruct-all": false,
+
+  "killswitched-sha256": [],
+  "self-destruct-sha256": [],
+
+  "outdated-sha256": [],
+  "expired-sha256": [],
+
+
+
+  
+
+  "killswitch": false,
+  "self-destruct": true 
+}
